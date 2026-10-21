@@ -19,5 +19,6 @@ pub fn install(ctx: &egui::Context) {
     style.visuals = visuals;
     style.spacing.item_spacing = tokens::ITEM_SPACING;
     style.spacing.button_padding = tokens::BUTTON_PADDING;
-    ctx.set_style(style);
+    ctx.set_style_of(egui::Theme::Dark, style);
+    ctx.set_theme(egui::Theme::Dark);
 }
