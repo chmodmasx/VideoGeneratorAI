@@ -11,14 +11,23 @@
         "provider": "hugging_face",
         "repository": "tencent/HunyuanVideo-1.5",
         "gated": false,
-        "include": ["vae/**"]
+        "include": [
+          "vae/**"
+        ]
       },
       "license": {
         "name": "Tencent Hunyuan Community License",
         "acceptance_required": true
       },
       "expected_paths": [
-        {"relative_path": "vae", "kind": "directory"}
+        {
+          "relative_path": "vae/config.json",
+          "kind": "file"
+        },
+        {
+          "relative_path": "vae/diffusion_pytorch_model.safetensors",
+          "kind": "file"
+        }
       ]
     },
     {
@@ -35,7 +44,10 @@
         "acceptance_required": false
       },
       "expected_paths": [
-        {"relative_path": "config.json", "kind": "file"}
+        {
+          "relative_path": "config.json",
+          "kind": "file"
+        }
       ]
     },
     {
@@ -52,7 +64,10 @@
         "acceptance_required": false
       },
       "expected_paths": [
-        {"relative_path": "config.json", "kind": "file"}
+        {
+          "relative_path": "config.json",
+          "kind": "file"
+        }
       ]
     },
     {
@@ -69,9 +84,18 @@
         "acceptance_required": true
       },
       "expected_paths": [
-        {"relative_path": "checkpoints/byt5_model.pt", "kind": "file"},
-        {"relative_path": "assets/color_idx.json", "kind": "file"},
-        {"relative_path": "assets/multilingual_10-lang_idx.json", "kind": "file"}
+        {
+          "relative_path": "checkpoints/byt5_model.pt",
+          "kind": "file"
+        },
+        {
+          "relative_path": "assets/color_idx.json",
+          "kind": "file"
+        },
+        {
+          "relative_path": "assets/multilingual_10-lang_idx.json",
+          "kind": "file"
+        }
       ]
     },
     {
@@ -88,8 +112,14 @@
         "acceptance_required": true
       },
       "expected_paths": [
-        {"relative_path": "image_encoder", "kind": "directory"},
-        {"relative_path": "feature_extractor", "kind": "directory"}
+        {
+          "relative_path": "image_encoder",
+          "kind": "directory"
+        },
+        {
+          "relative_path": "feature_extractor",
+          "kind": "directory"
+        }
       ]
     },
     {
@@ -100,14 +130,23 @@
         "provider": "hugging_face",
         "repository": "tencent/HunyuanVideo-1.5",
         "gated": false,
-        "include": ["transformer/480p_t2v/**"]
+        "include": [
+          "transformer/480p_t2v/**"
+        ]
       },
       "license": {
         "name": "Tencent Hunyuan Community License",
         "acceptance_required": true
       },
       "expected_paths": [
-        {"relative_path": "transformer/480p_t2v", "kind": "directory"}
+        {
+          "relative_path": "transformer/480p_t2v/config.json",
+          "kind": "file"
+        },
+        {
+          "relative_path": "transformer/480p_t2v/diffusion_pytorch_model.safetensors",
+          "kind": "file"
+        }
       ]
     },
     {
@@ -118,14 +157,23 @@
         "provider": "hugging_face",
         "repository": "tencent/HunyuanVideo-1.5",
         "gated": false,
-        "include": ["transformer/720p_t2v/**"]
+        "include": [
+          "transformer/720p_t2v/**"
+        ]
       },
       "license": {
         "name": "Tencent Hunyuan Community License",
         "acceptance_required": true
       },
       "expected_paths": [
-        {"relative_path": "transformer/720p_t2v", "kind": "directory"}
+        {
+          "relative_path": "transformer/720p_t2v/config.json",
+          "kind": "file"
+        },
+        {
+          "relative_path": "transformer/720p_t2v/diffusion_pytorch_model.safetensors",
+          "kind": "file"
+        }
       ]
     },
     {
@@ -136,14 +184,23 @@
         "provider": "hugging_face",
         "repository": "tencent/HunyuanVideo-1.5",
         "gated": false,
-        "include": ["transformer/480p_i2v/**"]
+        "include": [
+          "transformer/480p_i2v/**"
+        ]
       },
       "license": {
         "name": "Tencent Hunyuan Community License",
         "acceptance_required": true
       },
       "expected_paths": [
-        {"relative_path": "transformer/480p_i2v", "kind": "directory"}
+        {
+          "relative_path": "transformer/480p_i2v/config.json",
+          "kind": "file"
+        },
+        {
+          "relative_path": "transformer/480p_i2v/diffusion_pytorch_model.safetensors",
+          "kind": "file"
+        }
       ]
     },
     {
@@ -154,14 +211,23 @@
         "provider": "hugging_face",
         "repository": "tencent/HunyuanVideo-1.5",
         "gated": false,
-        "include": ["transformer/720p_i2v/**"]
+        "include": [
+          "transformer/720p_i2v/**"
+        ]
       },
       "license": {
         "name": "Tencent Hunyuan Community License",
         "acceptance_required": true
       },
       "expected_paths": [
-        {"relative_path": "transformer/720p_i2v", "kind": "directory"}
+        {
+          "relative_path": "transformer/720p_i2v/config.json",
+          "kind": "file"
+        },
+        {
+          "relative_path": "transformer/720p_i2v/diffusion_pytorch_model.safetensors",
+          "kind": "file"
+        }
       ]
     }
   ],
