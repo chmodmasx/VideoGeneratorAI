@@ -1,6 +1,6 @@
 use std::{
     collections::VecDeque,
-    sync::{mpsc, Arc},
+    sync::{Arc, mpsc},
 };
 
 use videogenerator_domain::{GenerationRequest, JobId};
@@ -27,10 +27,7 @@ impl JobState {
     }
 
     pub const fn is_terminal(self) -> bool {
-        matches!(
-            self,
-            Self::Completed | Self::Failed | Self::Cancelled
-        )
+        matches!(self, Self::Completed | Self::Failed | Self::Cancelled)
     }
 }
 
@@ -82,10 +79,7 @@ impl JobManager {
         &self.jobs
     }
 
-    pub fn submit(
-        &mut self,
-        mut request: GenerationRequest,
-    ) -> Result<JobId, EngineError> {
+    pub fn submit(&mut self, mut request: GenerationRequest) -> Result<JobId, EngineError> {
         let descriptor = self.engine.descriptor();
         if !descriptor.supports(request.kind) {
             return Err(EngineError::Rejected(format!(
@@ -119,10 +113,7 @@ impl JobManager {
             return self.engine.cancel(id);
         }
 
-        if let Some(job) = self
-            .find_mut(id)
-            .filter(|job| job.state == JobState::Queued)
-        {
+        if let Some(job) = self.find_mut(id).filter(|job| job.state == JobState::Queued) {
             job.state = JobState::Cancelled;
             job.stage = "Cancelled".to_owned();
         }
@@ -134,9 +125,7 @@ impl JobManager {
         while let Ok(event) = self.rx.try_recv() {
             terminal_event_seen |= matches!(
                 event,
-                EngineEvent::Completed { .. }
-                    | EngineEvent::Failed { .. }
-                    | EngineEvent::Cancelled { .. }
+                EngineEvent::Completed { .. } | EngineEvent::Failed { .. } | EngineEvent::Cancelled { .. }
             );
             self.apply(event);
         }
@@ -160,11 +149,7 @@ impl JobManager {
             return;
         }
 
-        let Some(index) = self
-            .jobs
-            .iter()
-            .position(|job| job.state == JobState::Queued)
-        else {
+        let Some(index) = self.jobs.iter().position(|job| job.state == JobState::Queued) else {
             return;
         };
 
@@ -245,12 +230,8 @@ impl JobManager {
 mod tests {
     use std::sync::Arc;
 
-    use videogenerator_domain::{
-        GenerationKind, GenerationRequest, JobId, QualityProfile, VideoSettings,
-    };
-    use videogenerator_engine_api::{
-        Engine, EngineDescriptor, EngineError, EngineEvent,
-    };
+    use videogenerator_domain::{GenerationKind, GenerationRequest, JobId, QualityProfile, VideoSettings};
+    use videogenerator_engine_api::{Engine, EngineDescriptor, EngineError, EngineEvent};
 
     use super::{JobManager, JobState};
 
