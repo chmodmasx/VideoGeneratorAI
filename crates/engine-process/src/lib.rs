@@ -358,10 +358,7 @@ mod tests {
         let runtime = engine_dir.join("runtime.py");
         assert!(runtime.is_file(), "runtime missing: {}", runtime.display());
 
-        let scratch = std::env::temp_dir().join(format!(
-            "videogenerator-engine-contract-{}",
-            std::process::id()
-        ));
+        let scratch = std::env::temp_dir().join(format!("videogenerator-engine-contract-{}", std::process::id()));
         let model_root = scratch.join("model");
         let output_root = scratch.join("outputs");
         fs::create_dir_all(&model_root).unwrap();
