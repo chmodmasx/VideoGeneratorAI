@@ -10,14 +10,10 @@ pub fn install(ctx: &egui::Context) {
     visuals.faint_bg_color = tokens::RAISED;
     visuals.selection.bg_fill = tokens::ACCENT;
     visuals.widgets.inactive.bg_fill = tokens::RAISED;
-    visuals.widgets.inactive.corner_radius =
-        CornerRadius::same(tokens::CORNER_RADIUS);
-    visuals.widgets.hovered.corner_radius =
-        CornerRadius::same(tokens::CORNER_RADIUS);
-    visuals.widgets.active.corner_radius =
-        CornerRadius::same(tokens::CORNER_RADIUS);
-    visuals.widgets.noninteractive.bg_stroke =
-        Stroke::new(1.0, tokens::BORDER);
+    visuals.widgets.inactive.corner_radius = CornerRadius::same(tokens::CORNER_RADIUS);
+    visuals.widgets.hovered.corner_radius = CornerRadius::same(tokens::CORNER_RADIUS);
+    visuals.widgets.active.corner_radius = CornerRadius::same(tokens::CORNER_RADIUS);
+    visuals.widgets.noninteractive.bg_stroke = Stroke::new(1.0, tokens::BORDER);
 
     let mut style = Style::default();
     style.visuals = visuals;
