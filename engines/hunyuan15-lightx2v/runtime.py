@@ -22,8 +22,8 @@ _active_job_id: int | None = None
 def emit(message: dict[str, Any]) -> None:
     line = json.dumps(message, separators=(",", ":"))
     with _write_lock:
-        sys.stdout.write(line + "\n")
-        sys.stdout.flush()
+        PROTOCOL_STDOUT.write(line + "\n")
+        PROTOCOL_STDOUT.flush()
 
 
 def error(request_id: int | None, code: str, message: str) -> None:
