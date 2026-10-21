@@ -84,6 +84,9 @@ pub fn decode_message(line: &str) -> Result<EngineMessage, serde_json::Error> {
 
 #[cfg(test)]
 mod tests {
+    use videogenerator_domain::JobId;
+    use videogenerator_engine_api::EngineEvent;
+
     use super::{EngineMessage, HostCommand, PROTOCOL_VERSION, decode_message, encode_command};
 
     #[test]
@@ -109,5 +112,29 @@ mod tests {
                 ..
             }
         ));
+    }
+
+    #[test]
+    fn python_runtime_event_shape_decodes() {
+        let started = r#"{"type":"event","event":{"Started":{"job_id":42}}}"#;
+        let completed =
+            r#"{"type":"event","event":{"Completed":{"job_id":42,"outputs":["/tmp/output.mp4"]}}}"#;
+
+        assert_eq!(
+            decode_message(started).unwrap(),
+            EngineMessage::Event {
+                event: EngineEvent::Started { job_id: JobId(42) }
+            }
+        );
+
+        assert_eq!(
+            decode_message(completed).unwrap(),
+            EngineMessage::Event {
+                event: EngineEvent::Completed {
+                    job_id: JobId(42),
+                    outputs: vec!["/tmp/output.mp4".to_owned()],
+                }
+            }
+        );
     }
 }
