@@ -15,8 +15,10 @@ pub fn install(ctx: &egui::Context) {
     visuals.widgets.active.corner_radius = CornerRadius::same(tokens::CORNER_RADIUS);
     visuals.widgets.noninteractive.bg_stroke = Stroke::new(1.0, tokens::BORDER);
 
-    let mut style = Style::default();
-    style.visuals = visuals;
+    let mut style = Style {
+        visuals,
+        ..Default::default()
+    };
     style.spacing.item_spacing = tokens::ITEM_SPACING;
     style.spacing.button_padding = tokens::BUTTON_PADDING;
     ctx.set_style_of(egui::Theme::Dark, style);
