@@ -1,6 +1,6 @@
 use std::{
     collections::HashSet,
-    sync::{mpsc::Sender, Arc, Mutex},
+    sync::{Arc, Mutex, mpsc::Sender},
     thread,
     time::Duration,
 };
@@ -15,10 +15,7 @@ pub struct MockEngine {
 
 impl MockEngine {
     fn is_cancelled(&self, job_id: JobId) -> bool {
-        self.cancelled
-            .lock()
-            .map(|jobs| jobs.contains(&job_id))
-            .unwrap_or(true)
+        self.cancelled.lock().map(|jobs| jobs.contains(&job_id)).unwrap_or(true)
     }
 }
 
@@ -42,11 +39,7 @@ impl Engine for MockEngine {
         }
     }
 
-    fn submit(
-        &self,
-        request: GenerationRequest,
-        events: Sender<EngineEvent>,
-    ) -> Result<(), EngineError> {
+    fn submit(&self, request: GenerationRequest, events: Sender<EngineEvent>) -> Result<(), EngineError> {
         let engine = self.clone();
         thread::spawn(move || {
             let job_id = request.job_id;
