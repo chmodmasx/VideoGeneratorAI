@@ -1,0 +1,40 @@
+{
+  "id": "hunyuan15-lightx2v",
+  "name": "HunyuanVideo 1.5 · LightX2V",
+  "version": "0.1.0",
+  "protocol": 1,
+  "entrypoint": "runtime.py",
+  "capabilities": [
+    "TextToVideo",
+    "ImageToVideo"
+  ],
+  "upstream": {
+    "repository": "https://github.com/ModelTC/LightX2V",
+    "commit": "19c19614b067f1746ac24350dfd097e1c0b48591",
+    "license": "Apache-2.0"
+  },
+  "model": {
+    "family": "HunyuanVideo-1.5",
+    "weights_bundled": false,
+    "license": "Tencent Hunyuan Community License"
+  },
+  "hardware": {
+    "operating_system": "linux",
+    "accelerator": "nvidia-cuda",
+    "minimum_vram_gib": 14,
+    "target": {
+      "gpu": "RTX 3090",
+      "vram_gib": 24,
+      "compute_capability": "sm86",
+      "certification": "pending-benchmark"
+    }
+  },
+  "defaults": {
+    "dtype": "BF16",
+    "attention": "sage_attn2",
+    "cpu_offload": true,
+    "offload_granularity": "block",
+    "quantization": "none",
+    "lighttae_path": null
+  }
+}

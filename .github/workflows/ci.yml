@@ -25,6 +25,11 @@ jobs:
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
+      - name: Validate engine adapter files
+        run: |
+          python3 -m py_compile engines/hunyuan15-lightx2v/runtime.py engines/hunyuan15-lightx2v/lightx2v_adapter.py
+          python3 -m json.tool engines/hunyuan15-lightx2v/engine.json >/dev/null
+          python3 -m unittest discover -s engines/hunyuan15-lightx2v -p 'test_*.py'
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
