@@ -48,6 +48,8 @@ def run_job(job: dict[str, Any]) -> None:
     global _active_job_id
 
     current_job_id = job_id(job)
+    terminal_event: dict[str, Any]
+
     try:
         emit(
             {
@@ -55,30 +57,38 @@ def run_job(job: dict[str, Any]) -> None:
                 "event": {"Started": {"job_id": current_job_id}},
             }
         )
-        _adapter.generate(job, emit, _cancelled)
+        outputs = _adapter.generate(job, emit, _cancelled)
+        terminal_event = {
+            "type": "event",
+            "event": {
+                "Completed": {
+                    "job_id": current_job_id,
+                    "outputs": outputs,
+                }
+            },
+        }
     except GenerationCancelled:
-        emit(
-            {
-                "type": "event",
-                "event": {"Cancelled": {"job_id": current_job_id}},
-            }
-        )
+        terminal_event = {
+            "type": "event",
+            "event": {"Cancelled": {"job_id": current_job_id}},
+        }
     except Exception as exc:
         traceback.print_exc(file=sys.stderr)
-        emit(
-            {
-                "type": "event",
-                "event": {
-                    "Failed": {
-                        "job_id": current_job_id,
-                        "message": f"{type(exc).__name__}: {exc}",
-                    }
-                },
-            }
-        )
-    finally:
-        with _state_lock:
-            _active_job_id = None
+        terminal_event = {
+            "type": "event",
+            "event": {
+                "Failed": {
+                    "job_id": current_job_id,
+                    "message": f"{type(exc).__name__}: {exc}",
+                }
+            },
+        }
+
+    # Make the engine schedulable before the host can observe a terminal event.
+    # This prevents the next serial job from racing with cleanup of this one.
+    with _state_lock:
+        _active_job_id = None
+    emit(terminal_event)
 
 
 def handle(command: dict[str, Any]) -> bool:
@@ -124,7 +134,7 @@ def handle(command: dict[str, Any]) -> bool:
         current_job_id = job_id(job)
 
         with _state_lock:
-            if _active_thread is not None and _active_thread.is_alive():
+            if _active_job_id is not None:
                 error(request_id, "busy", "engine already has an active job")
                 return True
 
@@ -151,7 +161,7 @@ def handle(command: dict[str, Any]) -> bool:
 
     if command_type == "unload":
         with _state_lock:
-            busy = _active_thread is not None and _active_thread.is_alive()
+            busy = _active_job_id is not None
         if busy:
             error(request_id, "busy", "cannot unload while a job is running")
             return True
