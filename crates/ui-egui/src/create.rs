@@ -1,7 +1,5 @@
 use egui::{ComboBox, Slider, Ui};
-use videogenerator_domain::{
-    GenerationKind, GenerationRequest, JobId, QualityProfile, VideoSettings,
-};
+use videogenerator_domain::{GenerationKind, GenerationRequest, JobId, QualityProfile, VideoSettings};
 use videogenerator_jobs::JobManager;
 
 pub struct CreateState {
@@ -31,22 +29,12 @@ impl Default for CreateState {
 impl CreateState {
     pub fn show(&mut self, ui: &mut Ui, jobs: &mut JobManager) {
         ui.heading("Create");
-        ui.label(
-            "Generate with intent-level controls. Backend details stay optional.",
-        );
+        ui.label("Generate with intent-level controls. Backend details stay optional.");
         ui.add_space(8.0);
 
         ui.horizontal(|ui| {
-            ui.selectable_value(
-                &mut self.kind,
-                GenerationKind::TextToVideo,
-                "Text to Video",
-            );
-            ui.selectable_value(
-                &mut self.kind,
-                GenerationKind::ImageToVideo,
-                "Image to Video",
-            );
+            ui.selectable_value(&mut self.kind, GenerationKind::TextToVideo, "Text to Video");
+            ui.selectable_value(&mut self.kind, GenerationKind::ImageToVideo, "Image to Video");
         });
 
         ui.add_space(8.0);
@@ -58,10 +46,7 @@ impl CreateState {
         );
 
         ui.collapsing("Negative prompt", |ui| {
-            ui.add(
-                egui::TextEdit::multiline(&mut self.negative_prompt)
-                    .desired_rows(2),
-            );
+            ui.add(egui::TextEdit::multiline(&mut self.negative_prompt).desired_rows(2));
         });
 
         ui.separator();
@@ -75,11 +60,7 @@ impl CreateState {
                         QualityProfile::Quality,
                     ] {
                         if ui
-                            .selectable_value(
-                                &mut self.profile,
-                                profile,
-                                profile.label(),
-                            )
+                            .selectable_value(&mut self.profile, profile, profile.label())
                             .clicked()
                         {
                             self.apply_profile();
@@ -89,46 +70,26 @@ impl CreateState {
 
             let mut resolution = (self.settings.width, self.settings.height);
             ComboBox::from_label("Resolution")
-                .selected_text(format!(
-                    "{}×{}",
-                    resolution.0, resolution.1
-                ))
+                .selected_text(format!("{}×{}", resolution.0, resolution.1))
                 .show_ui(ui, |ui| {
-                    ui.selectable_value(
-                        &mut resolution,
-                        (854, 480),
-                        "854×480",
-                    );
-                    ui.selectable_value(
-                        &mut resolution,
-                        (1280, 720),
-                        "1280×720",
-                    );
+                    ui.selectable_value(&mut resolution, (854, 480), "854×480");
+                    ui.selectable_value(&mut resolution, (1280, 720), "1280×720");
                 });
             (self.settings.width, self.settings.height) = resolution;
         });
 
         ui.horizontal(|ui| {
-            ui.add(
-                Slider::new(&mut self.settings.frames, 25..=241)
-                    .text("frames"),
-            );
-            ui.add(
-                Slider::new(&mut self.settings.steps, 4..=50)
-                    .text("steps"),
-            );
+            ui.add(Slider::new(&mut self.settings.frames, 25..=241).text("frames"));
+            ui.add(Slider::new(&mut self.settings.steps, 4..=50).text("steps"));
         });
-        ui.add(
-            Slider::new(&mut self.seed, 0..=u32::MAX as u64).text("seed"),
-        );
+        ui.add(Slider::new(&mut self.seed, 0..=u32::MAX as u64).text("seed"));
 
         ui.add_space(12.0);
         let can_generate = !self.prompt.trim().is_empty();
         if ui
             .add_enabled(
                 can_generate,
-                egui::Button::new("Generate")
-                    .min_size(egui::vec2(130.0, 36.0)),
+                egui::Button::new("Generate").min_size(egui::vec2(130.0, 36.0)),
             )
             .clicked()
         {
@@ -142,8 +103,7 @@ impl CreateState {
                 seed: self.seed,
                 input_paths: Vec::new(),
             };
-            self.last_error =
-                jobs.submit(request).err().map(|error| error.to_string());
+            self.last_error = jobs.submit(request).err().map(|error| error.to_string());
         }
 
         if let Some(error) = &self.last_error {
