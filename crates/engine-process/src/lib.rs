@@ -16,8 +16,7 @@ use std::{
 use videogenerator_domain::JobId;
 use videogenerator_engine_api::{Engine, EngineDescriptor, EngineError, EngineEvent};
 use videogenerator_engine_protocol::{
-    EngineMessage, HostCommand, PROTOCOL_VERSION, PrepareConfig, WireJob, decode_message,
-    encode_command,
+    EngineMessage, HostCommand, PROTOCOL_VERSION, PrepareConfig, WireJob, decode_message, encode_command,
 };
 
 pub struct ProcessEngineConfig {
@@ -83,19 +82,14 @@ impl ProcessEngine {
 
         let ready = read_message(&mut reader)?;
         let descriptor = match ready {
-            EngineMessage::Ready {
-                protocol,
-                descriptor,
-            } if protocol == PROTOCOL_VERSION => descriptor,
+            EngineMessage::Ready { protocol, descriptor } if protocol == PROTOCOL_VERSION => descriptor,
             EngineMessage::Ready { protocol, .. } => {
                 return Err(EngineError::Transport(format!(
                     "engine protocol mismatch: host={PROTOCOL_VERSION}, engine={protocol}"
                 )));
             }
             other => {
-                return Err(EngineError::Transport(format!(
-                    "expected ready message, got {other:?}"
-                )));
+                return Err(EngineError::Transport(format!("expected ready message, got {other:?}")));
             }
         };
 
@@ -117,14 +111,10 @@ impl ProcessEngine {
         match read_message(&mut reader)? {
             EngineMessage::Ack { request_id } if request_id == prepare_request_id => {}
             EngineMessage::Error { message, .. } => {
-                return Err(EngineError::Rejected(format!(
-                    "engine prepare failed: {message}"
-                )));
+                return Err(EngineError::Rejected(format!("engine prepare failed: {message}")));
             }
             other => {
-                return Err(EngineError::Transport(format!(
-                    "expected prepare ack, got {other:?}"
-                )));
+                return Err(EngineError::Transport(format!("expected prepare ack, got {other:?}")));
             }
         }
 
@@ -244,13 +234,10 @@ fn read_message<R: BufRead>(reader: &mut R) -> Result<EngineMessage, EngineError
         .map_err(|error| EngineError::Transport(format!("failed to read engine response: {error}")))?;
 
     if read == 0 {
-        return Err(EngineError::Transport(
-            "engine exited during handshake".to_owned(),
-        ));
+        return Err(EngineError::Transport("engine exited during handshake".to_owned()));
     }
 
-    decode_message(line.trim_end())
-        .map_err(|error| EngineError::Transport(format!("invalid engine response: {error}")))
+    decode_message(line.trim_end()).map_err(|error| EngineError::Transport(format!("invalid engine response: {error}")))
 }
 
 fn spawn_reader<R>(reader: R, routes: Arc<Mutex<HashMap<JobId, Sender<EngineEvent>>>>)
@@ -286,22 +273,14 @@ where
     });
 }
 
-fn route_event(
-    routes: &Arc<Mutex<HashMap<JobId, Sender<EngineEvent>>>>,
-    event: EngineEvent,
-) {
+fn route_event(routes: &Arc<Mutex<HashMap<JobId, Sender<EngineEvent>>>>, event: EngineEvent) {
     let job_id = event_job_id(&event);
     let terminal = matches!(
         event,
-        EngineEvent::Completed { .. }
-            | EngineEvent::Failed { .. }
-            | EngineEvent::Cancelled { .. }
+        EngineEvent::Completed { .. } | EngineEvent::Failed { .. } | EngineEvent::Cancelled { .. }
     );
 
-    let sender = routes
-        .lock()
-        .ok()
-        .and_then(|routes| routes.get(&job_id).cloned());
+    let sender = routes.lock().ok().and_then(|routes| routes.get(&job_id).cloned());
 
     if let Some(sender) = sender {
         let _ = sender.send(event);
