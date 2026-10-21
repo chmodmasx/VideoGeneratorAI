@@ -5,6 +5,8 @@ members = [
   "crates/domain",
   "crates/engine-api",
   "crates/engine-host",
+  "crates/engine-protocol",
+  "crates/engine-process",
   "crates/jobs",
   "crates/ui-kit",
   "crates/ui-egui",
@@ -27,6 +29,8 @@ thiserror = "2"
 videogenerator-domain = { path = "crates/domain" }
 videogenerator-engine-api = { path = "crates/engine-api" }
 videogenerator-engine-host = { path = "crates/engine-host" }
+videogenerator-engine-protocol = { path = "crates/engine-protocol" }
+videogenerator-engine-process = { path = "crates/engine-process" }
 videogenerator-jobs = { path = "crates/jobs" }
 videogenerator-ui-kit = { path = "crates/ui-kit" }
 videogenerator-ui-egui = { path = "crates/ui-egui" }

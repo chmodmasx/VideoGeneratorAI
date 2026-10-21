@@ -1,0 +1,13 @@
+[package]
+name = "videogenerator-engine-process"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+videogenerator-domain = { workspace = true }
+videogenerator-engine-api = { workspace = true }
+videogenerator-engine-protocol = { workspace = true }
