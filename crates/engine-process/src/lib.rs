@@ -321,10 +321,17 @@ fn fail_remaining_routes(routes: &Arc<Mutex<HashMap<JobId, Sender<EngineEvent>>>
 
 #[cfg(test)]
 mod tests {
-    use videogenerator_domain::JobId;
-    use videogenerator_engine_api::EngineEvent;
+    use std::{
+        collections::BTreeMap,
+        fs,
+        path::{Path, PathBuf},
+    };
 
-    use super::event_job_id;
+    use videogenerator_domain::JobId;
+    use videogenerator_engine_api::{Engine, EngineEvent};
+    use videogenerator_engine_protocol::PrepareConfig;
+
+    use super::{ProcessEngine, ProcessEngineConfig, event_job_id};
 
     #[test]
     fn event_job_id_is_stable_across_event_variants() {
@@ -341,5 +348,50 @@ mod tests {
         for event in &events {
             assert_eq!(event_job_id(event), id);
         }
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn python_hunyuan_runtime_completes_handshake_and_prepare() {
+        let workspace = workspace_root();
+        let engine_dir = workspace.join("engines/hunyuan15-lightx2v");
+        let runtime = engine_dir.join("runtime.py");
+        assert!(runtime.is_file(), "runtime missing: {}", runtime.display());
+
+        let scratch = std::env::temp_dir().join(format!(
+            "videogenerator-engine-contract-{}",
+            std::process::id()
+        ));
+        let model_root = scratch.join("model");
+        let output_root = scratch.join("outputs");
+        fs::create_dir_all(&model_root).unwrap();
+
+        let engine = ProcessEngine::spawn(ProcessEngineConfig {
+            executable: PathBuf::from("python3"),
+            args: vec![runtime.as_os_str().to_owned()],
+            working_dir: Some(engine_dir),
+            output_root: output_root.clone(),
+            prepare: PrepareConfig {
+                model_root: model_root.to_string_lossy().into_owned(),
+                output_root: output_root.to_string_lossy().into_owned(),
+                options: BTreeMap::new(),
+            },
+        })
+        .unwrap();
+
+        let descriptor = engine.descriptor();
+        assert_eq!(descriptor.id, "hunyuan15-lightx2v");
+        assert!(descriptor.process_isolated);
+
+        drop(engine);
+        let _ = fs::remove_dir_all(scratch);
+    }
+
+    fn workspace_root() -> PathBuf {
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(2)
+            .expect("engine-process crate must be two levels below workspace root")
+            .to_path_buf()
     }
 }
