@@ -36,5 +36,7 @@
     "offload_granularity": "block",
     "quantization": "none",
     "lighttae_path": null
-  }
+  },
+  "runtime_manifest": "runtime.json",
+  "model_manifest": "models.json"
 }
