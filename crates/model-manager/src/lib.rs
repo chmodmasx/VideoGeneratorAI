@@ -122,7 +122,11 @@ impl ModelBundleManifest {
             if !profile_ids.insert(profile.id.as_str()) {
                 return Err(ModelManagerError::DuplicateProfile(profile.id.clone()));
             }
-            for component_id in profile.required_components.iter().chain(&profile.recommended_components) {
+            for component_id in profile
+                .required_components
+                .iter()
+                .chain(&profile.recommended_components)
+            {
                 if !component_ids.contains(component_id.as_str()) {
                     return Err(ModelManagerError::UnknownProfileComponent {
                         profile: profile.id.clone(),
@@ -168,10 +172,7 @@ impl ModelBundleManifest {
             })
             .collect();
 
-        BundleInspection {
-            components,
-            profiles,
-        }
+        BundleInspection { components, profiles }
     }
 
     pub fn component(&self, id: &str) -> Option<&ModelComponent> {
@@ -182,10 +183,7 @@ impl ModelBundleManifest {
         self.profiles.iter().find(|profile| profile.id == id)
     }
 
-    pub fn required_sources_for_profile(
-        &self,
-        profile_id: &str,
-    ) -> Result<Vec<&ModelComponent>, ModelManagerError> {
+    pub fn required_sources_for_profile(&self, profile_id: &str) -> Result<Vec<&ModelComponent>, ModelManagerError> {
         let profile = self
             .profile(profile_id)
             .ok_or_else(|| ModelManagerError::UnknownProfile(profile_id.to_owned()))?;
@@ -200,12 +198,13 @@ impl ModelBundleManifest {
             .required_components
             .iter()
             .map(|component_id| {
-                by_id.get(component_id.as_str()).copied().ok_or_else(|| {
-                    ModelManagerError::UnknownProfileComponent {
+                by_id
+                    .get(component_id.as_str())
+                    .copied()
+                    .ok_or_else(|| ModelManagerError::UnknownProfileComponent {
                         profile: profile.id.clone(),
                         component: component_id.clone(),
-                    }
-                })
+                    })
             })
             .collect()
     }
@@ -240,10 +239,7 @@ impl BundleInspection {
 #[derive(Debug, Error)]
 pub enum ModelManagerError {
     #[error("failed to read model manifest {path}: {source}")]
-    ReadManifest {
-        path: PathBuf,
-        source: std::io::Error,
-    },
+    ReadManifest { path: PathBuf, source: std::io::Error },
     #[error("invalid model manifest JSON: {0}")]
     Json(#[from] serde_json::Error),
     #[error("unsupported model manifest schema {found}; supported schema is {supported}")]
@@ -307,10 +303,8 @@ mod tests {
 
     #[test]
     fn repository_hunyuan_manifest_is_valid() {
-        let manifest = ModelBundleManifest::from_path(workspace_root().join(
-            "engines/hunyuan15-lightx2v/models.json",
-        ))
-        .unwrap();
+        let manifest =
+            ModelBundleManifest::from_path(workspace_root().join("engines/hunyuan15-lightx2v/models.json")).unwrap();
 
         assert!(manifest.profile("base-t2v-480p").is_some());
         assert!(manifest.profile("base-i2v-720p").is_some());
@@ -321,10 +315,8 @@ mod tests {
 
     #[test]
     fn t2v_does_not_require_gated_siglip() {
-        let manifest = ModelBundleManifest::from_path(workspace_root().join(
-            "engines/hunyuan15-lightx2v/models.json",
-        ))
-        .unwrap();
+        let manifest =
+            ModelBundleManifest::from_path(workspace_root().join("engines/hunyuan15-lightx2v/models.json")).unwrap();
 
         let t2v = manifest.required_sources_for_profile("base-t2v-480p").unwrap();
         assert!(!t2v.iter().any(|component| component.id == "siglip"));
@@ -332,24 +324,13 @@ mod tests {
 
     #[test]
     fn inspection_enables_only_complete_profiles() {
-        let manifest = ModelBundleManifest::from_path(workspace_root().join(
-            "engines/hunyuan15-lightx2v/models.json",
-        ))
-        .unwrap();
+        let manifest =
+            ModelBundleManifest::from_path(workspace_root().join("engines/hunyuan15-lightx2v/models.json")).unwrap();
 
-        let scratch = std::env::temp_dir().join(format!(
-            "videogenerator-model-manager-{}",
-            std::process::id()
-        ));
+        let scratch = std::env::temp_dir().join(format!("videogenerator-model-manager-{}", std::process::id()));
         let _ = fs::remove_dir_all(&scratch);
 
-        for component_id in [
-            "vae",
-            "qwen25vl",
-            "byt5",
-            "glyph-byt5",
-            "transformer-480p-t2v",
-        ] {
+        for component_id in ["vae", "qwen25vl", "byt5", "glyph-byt5", "transformer-480p-t2v"] {
             materialize_component(&scratch, manifest.component(component_id).unwrap());
         }
 
