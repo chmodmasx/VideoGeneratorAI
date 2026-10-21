@@ -72,7 +72,7 @@ impl CreateState {
             ComboBox::from_label("Resolution")
                 .selected_text(format!("{}×{}", resolution.0, resolution.1))
                 .show_ui(ui, |ui| {
-                    ui.selectable_value(&mut resolution, (854, 480), "854×480");
+                    ui.selectable_value(&mut resolution, (832, 480), "832×480");
                     ui.selectable_value(&mut resolution, (1280, 720), "1280×720");
                 });
             (self.settings.width, self.settings.height) = resolution;
@@ -114,14 +114,14 @@ impl CreateState {
     fn apply_profile(&mut self) {
         self.settings = match self.profile {
             QualityProfile::Preview => VideoSettings {
-                width: 854,
+                width: 832,
                 height: 480,
                 frames: 121,
                 fps: 24,
                 steps: 4,
             },
             QualityProfile::Balanced => VideoSettings {
-                width: 854,
+                width: 832,
                 height: 480,
                 frames: 121,
                 fps: 24,
