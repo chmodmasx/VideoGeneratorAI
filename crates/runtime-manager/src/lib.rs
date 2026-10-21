@@ -215,7 +215,6 @@ pub fn build_install_plan(manifest: &RuntimeManifest, layout: &RuntimeLayout) ->
             ],
             current_dir: None,
             env: BTreeMap::new(),
-        },
     });
 
     plan
