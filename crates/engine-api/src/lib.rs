@@ -40,10 +40,6 @@ pub enum EngineError {
 
 pub trait Engine: Send + Sync + 'static {
     fn descriptor(&self) -> EngineDescriptor;
-    fn submit(
-        &self,
-        request: GenerationRequest,
-        events: Sender<EngineEvent>,
-    ) -> Result<(), EngineError>;
+    fn submit(&self, request: GenerationRequest, events: Sender<EngineEvent>) -> Result<(), EngineError>;
     fn cancel(&self, job_id: JobId) -> Result<(), EngineError>;
 }
