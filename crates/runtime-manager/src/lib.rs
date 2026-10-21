@@ -106,6 +106,10 @@ pub struct CommandSpec {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InstallStep {
+    CreateDirectory {
+        label: String,
+        path: PathBuf,
+    },
     Command {
         label: String,
         command: CommandSpec,
@@ -118,7 +122,10 @@ pub enum InstallStep {
 }
 
 pub fn build_install_plan(manifest: &RuntimeManifest, layout: &RuntimeLayout) -> Vec<InstallStep> {
-    let mut plan = Vec::new();
+    let mut plan = vec![InstallStep::CreateDirectory {
+        label: "Create runtime root".to_owned(),
+        path: layout.root.clone(),
+    }];
 
     if !layout.source_dir.join(".git").is_dir() {
         plan.push(InstallStep::Command {
@@ -170,20 +177,22 @@ pub fn build_install_plan(manifest: &RuntimeManifest, layout: &RuntimeLayout) ->
         },
     });
 
-    plan.push(InstallStep::Command {
-        label: "Create isolated Python environment".to_owned(),
-        command: CommandSpec {
-            program: PathBuf::from("uv"),
-            args: vec![
-                "venv".to_owned(),
-                "--python".to_owned(),
-                manifest.python.preferred.clone(),
-                layout.venv_dir.to_string_lossy().into_owned(),
-            ],
-            current_dir: None,
-            env: BTreeMap::new(),
-        },
-    });
+    if !layout.python().is_file() {
+        plan.push(InstallStep::Command {
+            label: "Create isolated Python environment".to_owned(),
+            command: CommandSpec {
+                program: PathBuf::from("uv"),
+                args: vec![
+                    "venv".to_owned(),
+                    "--python".to_owned(),
+                    manifest.python.preferred.clone(),
+                    layout.venv_dir.to_string_lossy().into_owned(),
+                ],
+                current_dir: None,
+                env: BTreeMap::new(),
+            },
+        });
+    }
 
     plan.push(InstallStep::Gate {
         id: "cuda-pytorch".to_owned(),
@@ -223,8 +232,13 @@ pub fn build_sageattention_plan(
     env.insert("EXT_PARALLEL".to_owned(), "4".to_owned());
     env.insert("NVCC_APPEND_FLAGS".to_owned(), "--threads 8".to_owned());
 
-    vec![
-        InstallStep::Command {
+    let mut plan = vec![InstallStep::CreateDirectory {
+        label: "Create runtime components directory".to_owned(),
+        path: layout.components_dir.clone(),
+    }];
+
+    if !source_dir.join(".git").is_dir() {
+        plan.push(InstallStep::Command {
             label: format!("Clone {}", component.label),
             command: CommandSpec {
                 program: PathBuf::from("git"),
@@ -237,23 +251,43 @@ pub fn build_sageattention_plan(
                 current_dir: None,
                 env: BTreeMap::new(),
             },
+        });
+    }
+
+    plan.push(InstallStep::Command {
+        label: format!("Fetch pinned {}", component.label),
+        command: CommandSpec {
+            program: PathBuf::from("git"),
+            args: vec![
+                "-C".to_owned(),
+                source_dir.to_string_lossy().into_owned(),
+                "fetch".to_owned(),
+                "--depth=1".to_owned(),
+                "origin".to_owned(),
+                component.source.commit.clone(),
+            ],
+            current_dir: None,
+            env: BTreeMap::new(),
         },
-        InstallStep::Command {
-            label: format!("Checkout pinned {}", component.label),
-            command: CommandSpec {
-                program: PathBuf::from("git"),
-                args: vec![
-                    "-C".to_owned(),
-                    source_dir.to_string_lossy().into_owned(),
-                    "checkout".to_owned(),
-                    "--detach".to_owned(),
-                    component.source.commit.clone(),
-                ],
-                current_dir: None,
-                env: BTreeMap::new(),
-            },
+    });
+
+    plan.push(InstallStep::Command {
+        label: format!("Checkout pinned {}", component.label),
+        command: CommandSpec {
+            program: PathBuf::from("git"),
+            args: vec![
+                "-C".to_owned(),
+                source_dir.to_string_lossy().into_owned(),
+                "checkout".to_owned(),
+                "--detach".to_owned(),
+                component.source.commit.clone(),
+            ],
+            current_dir: None,
+            env: BTreeMap::new(),
         },
-        InstallStep::Command {
+    });
+
+    plan.push(InstallStep::Command {
             label: format!("Install {}", component.label),
             command: CommandSpec {
                 program: PathBuf::from("uv"),
@@ -270,7 +304,9 @@ pub fn build_sageattention_plan(
                 env,
             },
         },
-    ]
+    });
+
+    plan
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
