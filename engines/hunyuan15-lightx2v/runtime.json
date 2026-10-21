@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "hunyuan15-lightx2v-runtime",
+  "name": "HunyuanVideo 1.5 · LightX2V runtime",
+  "source": {
+    "repository": "https://github.com/ModelTC/LightX2V.git",
+    "commit": "19c19614b067f1746ac24350dfd097e1c0b48591"
+  },
+  "python": {
+    "minimum": "3.10",
+    "preferred": "3.11"
+  },
+  "components": [
+    {
+      "id": "sageattention2",
+      "label": "SageAttention 2",
+      "source": {
+        "repository": "https://github.com/thu-ml/SageAttention.git",
+        "commit": "d1a57a546c3d395b1ffcbeecc66d81db76f3b4b5"
+      },
+      "optional": false
+    }
+  ]
+}

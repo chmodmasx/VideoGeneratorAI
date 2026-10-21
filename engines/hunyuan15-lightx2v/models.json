@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "id": "hunyuanvideo-1.5-base",
+  "name": "HunyuanVideo 1.5 base components",
+  "components": [
+    {
+      "id": "vae",
+      "label": "HunyuanVideo 1.5 VAE",
+      "destination": ".",
+      "source": {
+        "provider": "hugging_face",
+        "repository": "tencent/HunyuanVideo-1.5",
+        "gated": false,
+        "include": ["vae/**"]
+      },
+      "license": {
+        "name": "Tencent Hunyuan Community License",
+        "acceptance_required": true
+      },
+      "expected_paths": [
+        {"relative_path": "vae", "kind": "directory"}
+      ]
+    },
+    {
+      "id": "qwen25vl",
+      "label": "Qwen2.5-VL-7B-Instruct text encoder",
+      "destination": "text_encoder/llm",
+      "source": {
+        "provider": "hugging_face",
+        "repository": "Qwen/Qwen2.5-VL-7B-Instruct",
+        "gated": false
+      },
+      "license": {
+        "name": "Apache-2.0",
+        "acceptance_required": false
+      },
+      "expected_paths": [
+        {"relative_path": "config.json", "kind": "file"}
+      ]
+    },
+    {
+      "id": "byt5",
+      "label": "ByT5 small",
+      "destination": "text_encoder/byt5-small",
+      "source": {
+        "provider": "hugging_face",
+        "repository": "google/byt5-small",
+        "gated": false
+      },
+      "license": {
+        "name": "Apache-2.0",
+        "acceptance_required": false
+      },
+      "expected_paths": [
+        {"relative_path": "config.json", "kind": "file"}
+      ]
+    },
+    {
+      "id": "glyph-byt5",
+      "label": "Glyph-SDXL-v2 ByT5 checkpoint and assets",
+      "destination": "text_encoder/Glyph-SDXL-v2",
+      "source": {
+        "provider": "model_scope",
+        "repository": "AI-ModelScope/Glyph-SDXL-v2",
+        "gated": false
+      },
+      "license": {
+        "name": "See upstream model card",
+        "acceptance_required": true
+      },
+      "expected_paths": [
+        {"relative_path": "checkpoints/byt5_model.pt", "kind": "file"},
+        {"relative_path": "assets/color_idx.json", "kind": "file"},
+        {"relative_path": "assets/multilingual_10-lang_idx.json", "kind": "file"}
+      ]
+    },
+    {
+      "id": "siglip",
+      "label": "SigLIP vision encoder",
+      "destination": "vision_encoder/siglip",
+      "source": {
+        "provider": "hugging_face",
+        "repository": "black-forest-labs/FLUX.1-Redux-dev",
+        "gated": true
+      },
+      "license": {
+        "name": "FLUX.1 [dev] model terms — review upstream",
+        "acceptance_required": true
+      },
+      "expected_paths": [
+        {"relative_path": "image_encoder", "kind": "directory"},
+        {"relative_path": "feature_extractor", "kind": "directory"}
+      ]
+    },
+    {
+      "id": "transformer-480p-t2v",
+      "label": "HunyuanVideo 1.5 480p T2V transformer",
+      "destination": ".",
+      "source": {
+        "provider": "hugging_face",
+        "repository": "tencent/HunyuanVideo-1.5",
+        "gated": false,
+        "include": ["transformer/480p_t2v/**"]
+      },
+      "license": {
+        "name": "Tencent Hunyuan Community License",
+        "acceptance_required": true
+      },
+      "expected_paths": [
+        {"relative_path": "transformer/480p_t2v", "kind": "directory"}
+      ]
+    },
+    {
+      "id": "transformer-720p-t2v",
+      "label": "HunyuanVideo 1.5 720p T2V transformer",
+      "destination": ".",
+      "source": {
+        "provider": "hugging_face",
+        "repository": "tencent/HunyuanVideo-1.5",
+        "gated": false,
+        "include": ["transformer/720p_t2v/**"]
+      },
+      "license": {
+        "name": "Tencent Hunyuan Community License",
+        "acceptance_required": true
+      },
+      "expected_paths": [
+        {"relative_path": "transformer/720p_t2v", "kind": "directory"}
+      ]
+    },
+    {
+      "id": "transformer-480p-i2v",
+      "label": "HunyuanVideo 1.5 480p I2V transformer",
+      "destination": ".",
+      "source": {
+        "provider": "hugging_face",
+        "repository": "tencent/HunyuanVideo-1.5",
+        "gated": false,
+        "include": ["transformer/480p_i2v/**"]
+      },
+      "license": {
+        "name": "Tencent Hunyuan Community License",
+        "acceptance_required": true
+      },
+      "expected_paths": [
+        {"relative_path": "transformer/480p_i2v", "kind": "directory"}
+      ]
+    },
+    {
+      "id": "transformer-720p-i2v",
+      "label": "HunyuanVideo 1.5 720p I2V transformer",
+      "destination": ".",
+      "source": {
+        "provider": "hugging_face",
+        "repository": "tencent/HunyuanVideo-1.5",
+        "gated": false,
+        "include": ["transformer/720p_i2v/**"]
+      },
+      "license": {
+        "name": "Tencent Hunyuan Community License",
+        "acceptance_required": true
+      },
+      "expected_paths": [
+        {"relative_path": "transformer/720p_i2v", "kind": "directory"}
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "id": "base-t2v-480p",
+      "label": "Base T2V · 480p",
+      "capability": "TextToVideo",
+      "required_components": [
+        "vae",
+        "qwen25vl",
+        "byt5",
+        "glyph-byt5",
+        "transformer-480p-t2v"
+      ]
+    },
+    {
+      "id": "base-t2v-720p",
+      "label": "Base T2V · 720p",
+      "capability": "TextToVideo",
+      "required_components": [
+        "vae",
+        "qwen25vl",
+        "byt5",
+        "glyph-byt5",
+        "transformer-720p-t2v"
+      ]
+    },
+    {
+      "id": "base-i2v-480p",
+      "label": "Base I2V · 480p",
+      "capability": "ImageToVideo",
+      "required_components": [
+        "vae",
+        "qwen25vl",
+        "byt5",
+        "glyph-byt5",
+        "siglip",
+        "transformer-480p-i2v"
+      ]
+    },
+    {
+      "id": "base-i2v-720p",
+      "label": "Base I2V · 720p",
+      "capability": "ImageToVideo",
+      "required_components": [
+        "vae",
+        "qwen25vl",
+        "byt5",
+        "glyph-byt5",
+        "siglip",
+        "transformer-720p-i2v"
+      ]
+    }
+  ]
+}

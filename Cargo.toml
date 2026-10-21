@@ -8,6 +8,8 @@ members = [
   "crates/engine-protocol",
   "crates/engine-process",
   "crates/jobs",
+  "crates/model-manager",
+  "crates/runtime-manager",
   "crates/ui-kit",
   "crates/ui-egui",
 ]
@@ -32,6 +34,8 @@ videogenerator-engine-host = { path = "crates/engine-host" }
 videogenerator-engine-protocol = { path = "crates/engine-protocol" }
 videogenerator-engine-process = { path = "crates/engine-process" }
 videogenerator-jobs = { path = "crates/jobs" }
+videogenerator-model-manager = { path = "crates/model-manager" }
+videogenerator-runtime-manager = { path = "crates/runtime-manager" }
 videogenerator-ui-kit = { path = "crates/ui-kit" }
 videogenerator-ui-egui = { path = "crates/ui-egui" }
 
