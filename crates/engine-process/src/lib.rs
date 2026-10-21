@@ -286,9 +286,7 @@ fn route_event(routes: &Arc<Mutex<HashMap<JobId, Sender<EngineEvent>>>>, event: 
         let _ = sender.send(event);
     }
 
-    if terminal
-        && let Ok(mut routes) = routes.lock()
-    {
+    if terminal && let Ok(mut routes) = routes.lock() {
         routes.remove(&job_id);
     }
 }
