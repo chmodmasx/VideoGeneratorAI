@@ -65,7 +65,7 @@ pub struct VideoSettings {
 impl Default for VideoSettings {
     fn default() -> Self {
         Self {
-            width: 854,
+            width: 832,
             height: 480,
             frames: 121,
             fps: 24,
