@@ -106,19 +106,9 @@ pub struct CommandSpec {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InstallStep {
-    CreateDirectory {
-        label: String,
-        path: PathBuf,
-    },
-    Command {
-        label: String,
-        command: CommandSpec,
-    },
-    Gate {
-        id: String,
-        label: String,
-        detail: String,
-    },
+    CreateDirectory { label: String, path: PathBuf },
+    Command { label: String, command: CommandSpec },
+    Gate { id: String, label: String, detail: String },
 }
 
 pub fn build_install_plan(manifest: &RuntimeManifest, layout: &RuntimeLayout) -> Vec<InstallStep> {
@@ -333,10 +323,7 @@ pub fn probe_host_toolchain() -> HostToolchainProbe {
 #[derive(Debug, Error)]
 pub enum RuntimeManagerError {
     #[error("failed to read runtime manifest {path}: {source}")]
-    ReadManifest {
-        path: PathBuf,
-        source: std::io::Error,
-    },
+    ReadManifest { path: PathBuf, source: std::io::Error },
     #[error("invalid runtime manifest JSON: {0}")]
     Json(#[from] serde_json::Error),
     #[error("unsupported runtime manifest schema {found}; supported schema is {supported}")]
@@ -369,9 +356,7 @@ fn probe_command(program: &str, args: &[&str]) -> ToolStatus {
 
 fn validate_git_source(source: &GitSource) -> Result<(), RuntimeManagerError> {
     if !source.repository.starts_with("https://") {
-        return Err(RuntimeManagerError::InvalidGitRepository(
-            source.repository.clone(),
-        ));
+        return Err(RuntimeManagerError::InvalidGitRepository(source.repository.clone()));
     }
     if source.commit.len() != 40 || !source.commit.bytes().all(|byte| byte.is_ascii_hexdigit()) {
         return Err(RuntimeManagerError::InvalidGitCommit(source.commit.clone()));
@@ -387,25 +372,23 @@ mod tests {
 
     #[test]
     fn repository_runtime_manifest_is_valid_and_pinned() {
-        let manifest = RuntimeManifest::from_path(workspace_root().join(
-            "engines/hunyuan15-lightx2v/runtime.json",
-        ))
-        .unwrap();
+        let manifest =
+            RuntimeManifest::from_path(workspace_root().join("engines/hunyuan15-lightx2v/runtime.json")).unwrap();
 
-        assert_eq!(
-            manifest.source.commit,
-            "19c19614b067f1746ac24350dfd097e1c0b48591"
-        );
+        assert_eq!(manifest.source.commit, "19c19614b067f1746ac24350dfd097e1c0b48591");
         assert_eq!(manifest.python.preferred, "3.11");
-        assert!(manifest.components.iter().any(|component| component.id == "sageattention2"));
+        assert!(
+            manifest
+                .components
+                .iter()
+                .any(|component| component.id == "sageattention2")
+        );
     }
 
     #[test]
     fn install_plan_contains_explicit_cuda_pytorch_gate() {
-        let manifest = RuntimeManifest::from_path(workspace_root().join(
-            "engines/hunyuan15-lightx2v/runtime.json",
-        ))
-        .unwrap();
+        let manifest =
+            RuntimeManifest::from_path(workspace_root().join("engines/hunyuan15-lightx2v/runtime.json")).unwrap();
         let layout = RuntimeLayout::under("/tmp/videogenerator-lightx2v-test");
         let plan = build_install_plan(&manifest, &layout);
 
@@ -417,11 +400,13 @@ mod tests {
 
     #[test]
     fn sageattention_plan_targets_ampere_without_shell_strings() {
-        let manifest = RuntimeManifest::from_path(workspace_root().join(
-            "engines/hunyuan15-lightx2v/runtime.json",
-        ))
-        .unwrap();
-        let sage = manifest.components.iter().find(|component| component.id == "sageattention2").unwrap();
+        let manifest =
+            RuntimeManifest::from_path(workspace_root().join("engines/hunyuan15-lightx2v/runtime.json")).unwrap();
+        let sage = manifest
+            .components
+            .iter()
+            .find(|component| component.id == "sageattention2")
+            .unwrap();
         let layout = RuntimeLayout::under("/tmp/videogenerator-lightx2v-test");
         let plan = build_sageattention_plan(sage, &layout, "8.6");
 
