@@ -220,7 +220,7 @@ class Hunyuan15LightX2VAdapter:
         job_id: int,
     ) -> None:
         runner = getattr(pipe, "runner", None)
-        if runner is None or not hasattr(runner, "progress_callback"):
+        if runner is None or not hasattr(runner, "set_progress_callback"):
             return
 
         def progress(current: float, total: float) -> None:
@@ -229,7 +229,7 @@ class Hunyuan15LightX2VAdapter:
             fraction = 0.0 if total <= 0 else float(current) / float(total)
             emit(Hunyuan15LightX2VAdapter._event("progress", job_id, fraction=fraction))
 
-        runner.progress_callback = progress
+        runner.set_progress_callback(progress)
 
     @staticmethod
     def _task(kind: str) -> str:
