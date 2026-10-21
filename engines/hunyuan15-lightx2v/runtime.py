@@ -9,6 +9,7 @@ from typing import Any
 from lightx2v_adapter import GenerationCancelled, Hunyuan15LightX2VAdapter
 
 PROTOCOL_VERSION = 1
+PROTOCOL_STDOUT = sys.stdout
 
 _write_lock = threading.Lock()
 _state_lock = threading.Lock()
