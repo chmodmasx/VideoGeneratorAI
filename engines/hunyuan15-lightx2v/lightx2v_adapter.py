@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import contextlib
 import gc
 import math
 import os
+import sys
 import threading
 from dataclasses import dataclass
 from pathlib import Path
@@ -123,7 +125,8 @@ class Hunyuan15LightX2VAdapter:
         if task == "i2v":
             kwargs["image_path"] = str(Path(input_paths[0]).expanduser())
 
-        pipe.generate(**kwargs)
+        with contextlib.redirect_stdout(sys.stderr):
+            pipe.generate(**kwargs)
 
         if cancelled.is_set():
             raise GenerationCancelled()
@@ -157,47 +160,52 @@ class Hunyuan15LightX2VAdapter:
 
         self.unload()
 
-        from lightx2v import LightX2VPipeline
-
         assert self._config is not None
-        pipe = LightX2VPipeline(
-            model_path=self._config["model_root"],
-            model_cls="hunyuan_video_1.5",
-            transformer_model_name=key.transformer,
-            task=key.task,
-        )
-
         options = self._config.get("options", {})
-        pipe.enable_offload(
-            cpu_offload=bool(options.get("cpu_offload", True)),
-            offload_granularity="block",
-            text_encoder_offload=bool(options.get("text_encoder_offload", True)),
-            image_encoder_offload=bool(options.get("image_encoder_offload", key.task == "i2v")),
-            vae_offload=bool(options.get("vae_offload", False)),
-        )
 
-        lighttae_path = options.get("lighttae_path")
-        if lighttae_path:
-            tae = Path(lighttae_path).expanduser()
-            if not tae.is_file():
-                raise FileNotFoundError(f"LightTAE checkpoint not found: {tae}")
-            pipe.enable_lightvae(
-                use_tae=True,
-                tae_path=str(tae),
-                use_lightvae=False,
-                vae_path=None,
+        # stdout is reserved for VideoGeneratorAI's JSONL protocol. LightX2V
+        # currently prints runner configuration during setup, so all upstream
+        # stdout is redirected to stderr.
+        with contextlib.redirect_stdout(sys.stderr):
+            from lightx2v import LightX2VPipeline
+
+            pipe = LightX2VPipeline(
+                model_path=self._config["model_root"],
+                model_cls="hunyuan_video_1.5",
+                transformer_model_name=key.transformer,
+                task=key.task,
             )
 
-        pipe.create_generator(
-            attn_mode=key.attention,
-            infer_steps=key.steps,
-            num_frames=key.frames,
-            size=(key.height, key.width),
-            guidance_scale=6.0,
-            sample_shift=self._sample_shift(key.task, key.height),
-            aspect_ratio=self._aspect_ratio(key.width, key.height),
-            fps=fps,
-        )
+            pipe.enable_offload(
+                cpu_offload=bool(options.get("cpu_offload", True)),
+                offload_granularity="block",
+                text_encoder_offload=bool(options.get("text_encoder_offload", True)),
+                image_encoder_offload=bool(options.get("image_encoder_offload", key.task == "i2v")),
+                vae_offload=bool(options.get("vae_offload", False)),
+            )
+
+            lighttae_path = options.get("lighttae_path")
+            if lighttae_path:
+                tae = Path(lighttae_path).expanduser()
+                if not tae.is_file():
+                    raise FileNotFoundError(f"LightTAE checkpoint not found: {tae}")
+                pipe.enable_lightvae(
+                    use_tae=True,
+                    tae_path=str(tae),
+                    use_lightvae=False,
+                    vae_path=None,
+                )
+
+            pipe.create_generator(
+                attn_mode=key.attention,
+                infer_steps=key.steps,
+                num_frames=key.frames,
+                size=(key.height, key.width),
+                guidance_scale=6.0,
+                sample_shift=self._sample_shift(key.task, key.height),
+                aspect_ratio=self._aspect_ratio(key.width, key.height),
+                fps=fps,
+            )
 
         self._pipeline = pipe
         self._pipeline_key = key
