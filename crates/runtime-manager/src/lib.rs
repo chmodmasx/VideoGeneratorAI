@@ -215,6 +215,7 @@ pub fn build_install_plan(manifest: &RuntimeManifest, layout: &RuntimeLayout) ->
             ],
             current_dir: None,
             env: BTreeMap::new(),
+        },
     });
 
     plan
@@ -287,21 +288,20 @@ pub fn build_sageattention_plan(
     });
 
     plan.push(InstallStep::Command {
-            label: format!("Install {}", component.label),
-            command: CommandSpec {
-                program: PathBuf::from("uv"),
-                args: vec![
-                    "pip".to_owned(),
-                    "install".to_owned(),
-                    "--python".to_owned(),
-                    layout.python().to_string_lossy().into_owned(),
-                    "-v".to_owned(),
-                    "-e".to_owned(),
-                    source_dir.to_string_lossy().into_owned(),
-                ],
-                current_dir: Some(source_dir),
-                env,
-            },
+        label: format!("Install {}", component.label),
+        command: CommandSpec {
+            program: PathBuf::from("uv"),
+            args: vec![
+                "pip".to_owned(),
+                "install".to_owned(),
+                "--python".to_owned(),
+                layout.python().to_string_lossy().into_owned(),
+                "-v".to_owned(),
+                "-e".to_owned(),
+                source_dir.to_string_lossy().into_owned(),
+            ],
+            current_dir: Some(source_dir),
+            env,
         },
     });
 
