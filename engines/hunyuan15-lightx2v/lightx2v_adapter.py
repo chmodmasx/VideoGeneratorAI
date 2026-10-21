@@ -21,6 +21,7 @@ class PipelineKey:
     height: int
     frames: int
     steps: int
+    fps: int
     attention: str
 
 
@@ -97,6 +98,7 @@ class Hunyuan15LightX2VAdapter:
             height=height,
             frames=frames,
             steps=steps,
+            fps=fps,
             attention=attention,
         )
 
