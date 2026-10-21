@@ -28,16 +28,8 @@ impl VideoGeneratorApp {
 
     fn navigation(&mut self, ui: &mut egui::Ui) {
         ui.add_space(6.0);
-        ui.label(
-            RichText::new("VideoGeneratorAI")
-                .strong()
-                .size(18.0),
-        );
-        ui.label(
-            RichText::new("LOCAL VIDEO STUDIO")
-                .color(tokens::MUTED_TEXT)
-                .size(10.0),
-        );
+        ui.label(RichText::new("VideoGeneratorAI").strong().size(18.0));
+        ui.label(RichText::new("LOCAL VIDEO STUDIO").color(tokens::MUTED_TEXT).size(10.0));
         ui.add_space(16.0);
 
         for section in Section::ALL {
@@ -47,10 +39,7 @@ impl VideoGeneratorApp {
                 ui.add_space(6.0);
             }
             let selected = self.section == section;
-            if ui
-                .selectable_label(selected, section.label())
-                .clicked()
-            {
+            if ui.selectable_label(selected, section.label()).clicked() {
                 self.section = section;
             }
         }
@@ -59,20 +48,14 @@ impl VideoGeneratorApp {
     fn header(&self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             ui.heading(self.section.label());
-            ui.with_layout(
-                Layout::right_to_left(Align::Center),
-                |ui| {
-                    ui.label(format!(
-                        "{} · {:.0} GB · {}",
-                        self.hardware.gpu_name,
-                        self.hardware.vram_gib,
-                        self.hardware
-                            .compute_capability
-                            .as_deref()
-                            .unwrap_or("unknown")
-                    ));
-                },
-            );
+            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                ui.label(format!(
+                    "{} · {:.0} GB · {}",
+                    self.hardware.gpu_name,
+                    self.hardware.vram_gib,
+                    self.hardware.compute_capability.as_deref().unwrap_or("unknown")
+                ));
+            });
         });
     }
 
@@ -87,31 +70,16 @@ impl VideoGeneratorApp {
         for job in self.jobs.jobs().iter().rev() {
             egui::Frame::group(ui.style()).show(ui, |ui| {
                 ui.horizontal(|ui| {
-                    ui.strong(format!(
-                        "#{} · {}",
-                        job.id,
-                        job.request.kind.label()
-                    ));
+                    ui.strong(format!("#{} · {}", job.id, job.request.kind.label()));
                     ui.label(job.state.label());
                 });
                 ui.label(&job.request.prompt);
-                ui.add(
-                    egui::ProgressBar::new(job.progress)
-                        .show_percentage()
-                        .text(&job.stage),
-                );
-                if matches!(
-                    job.state,
-                    JobState::Queued | JobState::Running
-                ) && ui.small_button("Cancel").clicked()
-                {
+                ui.add(egui::ProgressBar::new(job.progress).show_percentage().text(&job.stage));
+                if matches!(job.state, JobState::Queued | JobState::Running) && ui.small_button("Cancel").clicked() {
                     cancel = Some(job.id);
                 }
                 if let Some(error) = &job.error {
-                    ui.colored_label(
-                        egui::Color32::LIGHT_RED,
-                        error,
-                    );
+                    ui.colored_label(egui::Color32::LIGHT_RED, error);
                 }
                 for output in &job.outputs {
                     ui.monospace(output);
@@ -124,31 +92,21 @@ impl VideoGeneratorApp {
         }
     }
 
-    fn placeholder(
-        ui: &mut egui::Ui,
-        title: &str,
-        body: &str,
-        engine: &str,
-    ) {
+    fn placeholder(ui: &mut egui::Ui, title: &str, body: &str, engine: &str) {
         ui.heading(title);
         ui.label(body);
         ui.add_space(16.0);
         egui::Frame::group(ui.style()).show(ui, |ui| {
             ui.strong("Planned engine");
             ui.monospace(engine);
-            ui.label(
-                "The UI module is intentionally independent from the runtime adapter.",
-            );
+            ui.label("The UI module is intentionally independent from the runtime adapter.");
         });
     }
 
     fn bottom_status(&self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             let descriptor = self.jobs.engine().descriptor();
-            ui.label(format!(
-                "Engine: {} {}",
-                descriptor.name, descriptor.version
-            ));
+            ui.label(format!("Engine: {} {}", descriptor.name, descriptor.version));
             ui.separator();
             if let Some(job) = self.jobs.active() {
                 ui.label(format!(
@@ -160,50 +118,34 @@ impl VideoGeneratorApp {
             } else {
                 ui.label("Idle");
             }
-            ui.with_layout(
-                Layout::right_to_left(Align::Center),
-                |ui| {
-                    ui.label("offline-first");
-                },
-            );
+            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                ui.label("offline-first");
+            });
         });
     }
 }
 
 impl eframe::App for VideoGeneratorApp {
-    fn logic(
-        &mut self,
-        ctx: &egui::Context,
-        _frame: &mut eframe::Frame,
-    ) {
+    fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.jobs.poll();
         if self.jobs.active().is_some() {
-            ctx.request_repaint_after(
-                std::time::Duration::from_millis(33),
-            );
+            ctx.request_repaint_after(std::time::Duration::from_millis(33));
         }
     }
 
-    fn ui(
-        &mut self,
-        ui: &mut egui::Ui,
-        _frame: &mut eframe::Frame,
-    ) {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         egui::Panel::left("nav")
             .resizable(false)
             .default_size(150.0)
             .show(ui, |ui| self.navigation(ui));
 
         egui::Panel::top("header").show(ui, |ui| self.header(ui));
-        egui::Panel::bottom("status")
-            .show(ui, |ui| self.bottom_status(ui));
+        egui::Panel::bottom("status").show(ui, |ui| self.bottom_status(ui));
 
         egui::CentralPanel::default().show(ui, |ui| {
             ui.add_space(8.0);
             match self.section {
-                Section::Create => {
-                    self.create.show(ui, &mut self.jobs)
-                }
+                Section::Create => self.create.show(ui, &mut self.jobs),
                 Section::Compose => Self::placeholder(
                     ui,
                     "Compose",
