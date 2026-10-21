@@ -70,7 +70,7 @@ class Hunyuan15LightX2VAdapter:
         job: dict[str, Any],
         emit: Callable[[dict[str, Any]], None],
         cancelled: threading.Event,
-    ) -> None:
+    ) -> list[str]:
         if self._config is None:
             raise RuntimeError("engine has not been prepared")
 
@@ -132,17 +132,7 @@ class Hunyuan15LightX2VAdapter:
             raise GenerationCancelled()
 
         emit(self._event("stage", job_id, name="Finalizing"))
-        emit(
-            {
-                "type": "event",
-                "event": {
-                    "Completed": {
-                        "job_id": job_id,
-                        "outputs": [str(output_path)],
-                    }
-                },
-            }
-        )
+        return [str(output_path)]
 
     def _ensure_pipeline(
         self,
