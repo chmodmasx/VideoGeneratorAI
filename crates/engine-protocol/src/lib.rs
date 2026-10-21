@@ -28,27 +28,12 @@ pub struct WireJob {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum HostCommand {
-    Hello {
-        protocol: u32,
-    },
-    Prepare {
-        request_id: u64,
-        config: PrepareConfig,
-    },
-    Submit {
-        request_id: u64,
-        job: WireJob,
-    },
-    Cancel {
-        request_id: u64,
-        job_id: JobId,
-    },
-    Unload {
-        request_id: u64,
-    },
-    Shutdown {
-        request_id: u64,
-    },
+    Hello { protocol: u32 },
+    Prepare { request_id: u64, config: PrepareConfig },
+    Submit { request_id: u64, job: WireJob },
+    Cancel { request_id: u64, job_id: JobId },
+    Unload { request_id: u64 },
+    Shutdown { request_id: u64 },
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -117,8 +102,7 @@ mod tests {
     #[test]
     fn python_runtime_event_shape_decodes() {
         let started = r#"{"type":"event","event":{"Started":{"job_id":42}}}"#;
-        let completed =
-            r#"{"type":"event","event":{"Completed":{"job_id":42,"outputs":["/tmp/output.mp4"]}}}"#;
+        let completed = r#"{"type":"event","event":{"Completed":{"job_id":42,"outputs":["/tmp/output.mp4"]}}}"#;
 
         assert_eq!(
             decode_message(started).unwrap(),
